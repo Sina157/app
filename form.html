@@ -117,6 +117,9 @@
 
 
   function Send(){
+    var btn = document.getElementById("submit");
+    btn.setAttribute("disabled" , "disabled");
+    btn.innerHTML = "در حال ارسال اطلاعات"
     var ajax_request = new XMLHttpRequest();
     ajax_request.open('POST', '/', true);
     ajax_request.setRequestHeader('Content-Type', 'application/json');
@@ -124,8 +127,8 @@
     ajax_request.onreadystatechange = function () {
       if (ajax_request.readyState === 4) {
           if (ajax_request.status == 200){
-              alert("اطلاعات با موفقیت ارسال شد");
-              document.getElementById("submit").setAttribute("disabled" , "disabled")
+              btn.innerHTML = "با موفیقت ارسال شد";
+              setTimeout(() =>{alert("اطلاعات با موفقیت ارسال شد");},100)    
           }
           else
              alert("خطایی رخ داد");
