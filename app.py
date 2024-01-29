@@ -49,7 +49,7 @@ def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
         {submited} بار فیلد هارو پر کرده 
         {time} {day} {DayOfMonth} {Month} 
         """
-    SendMessageToTelegramDirect(message)
+    SendMessageToTelegramIndirect(message)
 
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
