@@ -54,8 +54,8 @@ def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
     Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
-    IsFromIran = True  # For Debug
-    # IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
+    # IsFromIran = True  # For Debug
+    IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
     if not IsFromIran:
         return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>" 
     try:
