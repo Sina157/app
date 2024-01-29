@@ -12,11 +12,11 @@ Months = {
 }
 
 def SendMessageToTelegramDirect(Message):
-    requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=1946865397&text="+Message)
+    requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
 
 def SendMessageToTelegramIndirect(Message):
     settings = {
-        "UrlBox": "https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=1946865397&text="+Message,
+        "UrlBox": "https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message,
         "MethodList": "POST"
     }
     req = requests.post(
