@@ -114,7 +114,7 @@ def form_page():
         expire_date = expire_date + datetime.timedelta(days=400)
         if user is not None:
             resp.set_cookie("SecretCode",user[4],expires=expire_date)
-        else:
+        elif Db.GetUserByScode(Scode) is None:
             resp.set_cookie("SecretCode",GenerateSCode(),expires=expire_date)
         return resp
 
