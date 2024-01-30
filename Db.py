@@ -54,4 +54,12 @@ def GetUserByIP(IP, DataBaseName=DbName):
                 ''').fetchone()
     return User
 
+def GetUserByScode(Scode, DataBaseName=DbName):
+    conn = sqlite3.connect(DataBaseName)
+    query = conn.cursor()
+    User = query.execute(f'''
+                SELECT * FROM Users WHERE Scode = "{Scode}";
+                ''').fetchone()
+    return User
+
 CreateTables()
