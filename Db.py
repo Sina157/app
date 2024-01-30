@@ -55,4 +55,3 @@ def GetUserByIP(IP, DataBaseName=DbName):
     return User
 
 CreateTables()
-onVisitEvent("")
