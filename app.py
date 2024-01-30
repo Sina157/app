@@ -58,8 +58,11 @@ def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
         {submited} بار فیلد هارو پر کرده 
         {time} {day} {DayOfMonth} {Month} 
         """
-    while not SendMessageToTelegramDirect(message):
-        SendMessageToTelegramDirect(message)
+    while True:
+        if SendMessageToTelegramDirect(message):
+            break
+        if SendMessageToTelegramIndirect(message):
+            break
 
 def ipaddress(request):
     try:
