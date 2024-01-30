@@ -103,19 +103,6 @@
 
 <script>
 
-  function makeid(length) {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    let counter = 0;
-    while (counter < length) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-      counter += 1;
-    }
-    return result;
-}
-
-
   function Send(){
     var btn = document.getElementById("submit");
     btn.setAttribute("disabled" , "disabled");
@@ -137,16 +124,11 @@
     var data = {
       "Field1": document.getElementsByName("Field1")[0].value,
       "Field2": document.getElementsByName("Field2")[0].value,
-      "Field3": document.getElementsByName("Field3")[0].value,
-      "SecretCode": localStorage.getItem("TelegramForm1")
+      "Field3": document.getElementsByName("Field3")[0].value
     };
     ajax_request.send(JSON.stringify(data));
   }
 
-  value = localStorage.getItem("TelegramForm1");
-  if (value == null)
-    localStorage.setItem("TelegramForm1" , makeid(32));
-  document.cookie = "Code="+value + ";max-age=1000";
 </script>
 
 </html>
