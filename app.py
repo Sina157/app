@@ -86,7 +86,7 @@ def GenerateSCode():
 
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
-    Scode = ""
+    Scode = request.cookies.get('SecretCode')
     # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
     Ip = ipaddress(request)
     # IsFromIran = True  # For Debug
@@ -95,7 +95,6 @@ def form_page():
         return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>\n"+ Ip 
     try:
         data = jsonify(request.json).get_json()
-        Scode = request.cookies.get('SecretCode')
         Scode = Scode.replace('"','') # sql injection
         if request.method == 'POST' and len(Scode) == 32:
             Field1 = data.get('Field1')
@@ -110,15 +109,17 @@ def form_page():
             Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,User[1],User[2],User[0])).start()
             return "Ok"
     finally:
-        Db.onVisitEvent(Ip)
         resp = make_response(render_template('form.html'))
         user = Db.GetUserByIP(IP=Ip)
         expire_date = datetime.datetime.now()
         expire_date = expire_date + datetime.timedelta(days=400)
         if user is not None:
+            Db.onVisitIp(Ip)
             resp.set_cookie("SecretCode",user[4],expires=expire_date)
         elif Db.GetUserByScode(Scode) is None:
             resp.set_cookie("SecretCode",GenerateSCode(),expires=expire_date)
+        else:
+            Db.onVisitScode(Scode)
         return resp
 
 if __name__ == '__main__':
