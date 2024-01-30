@@ -36,13 +36,23 @@ def AddOrUpdate(IP , Scode , DataBaseName=DbName):
                         ''')
             conn.commit()
 
-def onVisitEvent(IP, DataBaseName=DbName):
+def onVisitIp(IP, DataBaseName=DbName):
     conn = sqlite3.connect(DataBaseName)
     query = conn.cursor()
     query.execute(f'''
                     UPDATE Users
                     SET visited = visited + 1
                     WHERE IP = "{IP}";
+                ''')
+    conn.commit()
+
+def onVisitScode(Scode, DataBaseName=DbName):
+    conn = sqlite3.connect(DataBaseName)
+    query = conn.cursor()
+    query.execute(f'''
+                    UPDATE Users
+                    SET visited = visited + 1
+                    WHERE Scode = "{Scode}";
                 ''')
     conn.commit()
 
