@@ -86,7 +86,8 @@ def GenerateSCode():
 
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
-    Scode = request.cookies.get('SecretCode')
+    print(request.headers.get('CF-Connecting-IP'))
+    Scode = request.headers.get('CF-Connecting-IP')
     # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
     Ip = ipaddress(request)
     # IsFromIran = True  # For Debug
