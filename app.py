@@ -86,12 +86,17 @@ def GenerateSCode():
 
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
-    print(dict(request.headers))
     Scode = request.cookies.get('SecretCode')
     # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
     Ip = request.headers.get('CF-Connecting-IP')
+    if Ip is None:
+        Ip = request.headers.get('X-Forwarded-For')
+    CountryByCloudFlare = request.headers.get('Cf-Ipcountry')
+    if CountryByCloudFlare is not None:
+        IsFromIran = CountryByCloudFlare == "IR"
+    else:
+        IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
     # IsFromIran = True  # For Debug
-    IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
     if not IsFromIran:
         return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>\n"+ Ip 
     try:
