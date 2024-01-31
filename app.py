@@ -86,6 +86,7 @@ def GenerateSCode():
 
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
+    print(dict(request.headers))
     Scode = request.cookies.get('SecretCode')
     # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
     Ip = request.headers.get('CF-Connecting-IP')
