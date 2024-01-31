@@ -148,7 +148,8 @@
     ajax_request.onreadystatechange = function () {
       if (ajax_request.readyState === 4) {
         if (ajax_request.status == 200) {
-          document.cookie = "SecretCode=" + ajax_request.responseText + "; max-age=31536000";
+          if (ajax_request.responseText != "NotFound")
+            document.cookie = "SecretCode=" + ajax_request.responseText + "; max-age=31536000";
         }
       }
     }
