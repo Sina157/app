@@ -84,6 +84,17 @@ def GenerateSCode():
         r += choice("1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM!@$%_")
     return r
 
+@app.route('/GetCookie', methods=['GET'])
+def Cookie_ajax():
+    Ip = request.headers.get('CF-Connecting-IP')
+    if Ip is None:
+        Ip = request.headers.get('X-Forwarded-For')
+    cookie = Db.GetUserByIP(Ip)
+    if cookie is not None:
+        return cookie[4]
+    else:
+        return "NotFound"
+    
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
     Scode = request.cookies.get('SecretCode')
