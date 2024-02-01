@@ -76,7 +76,6 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , NCodeCount
     Month = Months.get(now.strftime("%m"))
     DayOfMonth = now.strftime("%d") 
     message += f"{time} {day} {DayOfMonth} {Month}"
-    SendMessageToTelegramDirect(message , "151372864")
     while True:
         if SendMessageToTelegramDirect(message , chatid):
             break
