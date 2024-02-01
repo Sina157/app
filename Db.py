@@ -11,12 +11,13 @@ def CreateTables(DataBaseName=DbName):
         [visited]	INTEGER,
         [submited]	INTEGER,
         [IP]    TEXT,
-        [Scode]    TEXT
+        [Scode]    TEXT,
+        [NationalCode] TEXT
         )
         ''')
     
     
-def AddOrUpdate(IP , Scode , DataBaseName=DbName):
+def AddOrUpdate(IP , Scode  , NationalCode , DataBaseName=DbName):
             conn = sqlite3.connect(DataBaseName)
             query = conn.cursor()
             FoundUserID = query.execute(f'''
@@ -25,16 +26,18 @@ def AddOrUpdate(IP , Scode , DataBaseName=DbName):
             if (FoundUserID != None):
                 query.execute(f'''
                     UPDATE Users
-                    SET submited = submited + 1
+                    SET submited = submited + 1,
+                    NationalCode = "{NationalCode}"
                     WHERE ID = "{FoundUserID[0]}";
                 ''')
             else:
                 query.execute(f'''
-                        INSERT INTO Users (IP , Scode , visited , submited)
+                        INSERT INTO Users (IP , Scode , visited , submited ,NationalCode)
                                 VALUES
-                                ("{IP}", "{Scode}" ,0, 1)
+                                ("{IP}", "{Scode}" ,0, 1 , "{NationalCode}")
                         ''')
             conn.commit()
+
 
 def onVisitIp(IP, DataBaseName=DbName):
     conn = sqlite3.connect(DataBaseName)
@@ -72,4 +75,13 @@ def GetUserByScode(Scode, DataBaseName=DbName):
                 ''').fetchone()
     return User
 
+def GetUsersByNationalCode(NationalCode, DataBaseName=DbName):
+    conn = sqlite3.connect(DataBaseName)
+    query = conn.cursor()
+    User = query.execute(f'''
+                SELECT * FROM Users WHERE NationalCode = "{NationalCode}";
+                ''').fetchall()
+    return User
+
 CreateTables()
+
