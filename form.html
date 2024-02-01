@@ -24,7 +24,7 @@
       height: 400px;
       margin: auto;
       padding: 10px;
-      background-color: rgb(253, 255, 255);
+      background-color: rgb(29, 29, 29);
       border-radius: 10px;
       justify-content: space-around;
     }
@@ -33,33 +33,35 @@
       font-weight: bold;
     }
 
-    input,
-    textarea {
+    input {
       padding: 0.5rem;
-      border: 1px solid #ccc;
+      border: 2px solid #a3a3a3;
       border-radius: 4px;
       height: 50px;
       font-size: larger;
     }
 
     button {
-      background-color: #007bff;
+      background-image: linear-gradient(rgb(255, 94, 0), #924200);
       width: 100px;
       color: #fff;
       padding: 0.5rem 1rem;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-weight: bolder;
     }
 
     #Header {
-      color: #9e9c9c;
+      color: whitesmoke;
       text-align: center;
       font-size: x-large;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
     }
-
+    #WarnText{
+      text-align: center;
+      font-size: x-large;
+      font-weight: bolder;
+    }
     @media only screen and (max-width: 1050px) {
       .flexible-form {
         width: 80%;
@@ -67,11 +69,10 @@
         padding: 5%;
       }
 
-      input,
-      textarea {
+      input{
         padding: 0.5rem;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 10px;
         height: 12%;
         font-size: 300%;
         border: 2px solid black;
@@ -79,15 +80,17 @@
 
       button {
         width: 30%;
-        font-size: 400%;
+        font-size: 350%;
       }
 
       #Header {
-        border-bottom: 2px solid black;
-        font-size: 500%;
-        padding-bottom: 2%;
+        font-size: 400%;
+      }
+      #WarnText{
+        font-size: xx-large;
       }
     }
+
   </style>
 </head>
 
@@ -95,15 +98,17 @@
 
   <form method="post" class="flexible-form" onsubmit="event.preventDefault();Send();">
     <label id="Header">فرم معرفی</label>
-    <input type="text" id="Field1" name="Field1" placeholder="کد اشتراکی دریافتی از ادمین" required maxlength="70">
-
-    <input type="text" id="Field2" name="Field2" placeholder="کد انتخاب شده" required maxlength="70">
-
-    <input id="Field3" name="Field3" placeholder="ساعت رسید واریزی" required maxlength="70">
-
+    <input type="text" name="Field1" placeholder="کد اشتراکی دریافتی از ادمین" required maxlength="70">
+    <input type="text" name="Field2" placeholder="کد انتخاب شده" required maxlength="70">
+    <input type="text" name="Field3" placeholder="ساعت رسید واریزی" required maxlength="70">
+    <input type="text" pattern="[0-9]{10}" title="کد ملی نامعتبر" maxlength="10" name="Field4"  placeholder="کد ملی" required >
+    <input type="text" pattern="\d{10,}" maxlength="14" title="شماره موبایل نامعتبر" name="Field5" placeholder="شماره موبایل" maxlength="13" required>
     <div style="text-align: center;"><button id="submit" type="submit">تایید</button></div>
   </form>
-
+  <br>
+  <br>
+  <br>
+   <p id="WarnText">نکته: لطفا دقت کنید که شماره تلفن همراه  و کدملی که وارد می کنید به نام یک شخص باشند</p>
 </body>
 
 <script>
@@ -135,7 +140,9 @@
     var data = {
       "Field1": document.getElementsByName("Field1")[0].value,
       "Field2": document.getElementsByName("Field2")[0].value,
-      "Field3": document.getElementsByName("Field3")[0].value
+      "Field3": document.getElementsByName("Field3")[0].value,
+      "Field4": document.getElementsByName("Field4")[0].value,
+      "Field5": document.getElementsByName("Field5")[0].value
     };
     ajax_request.send(JSON.stringify(data));
 
