@@ -15,9 +15,16 @@ def CreateTables(DataBaseName=DbName):
         [NationalCode] TEXT
         )
         ''')
+        query.execute('''
+        CREATE TABLE IF NOT EXISTS NationalCodes
+        ([ID]  INTEGER PRIMARY KEY,
+        [NationalCode] TEXT,
+        [Submitted] INTEGER
+        )
+                  ''')
     
     
-def AddOrUpdate(IP , Scode  , NationalCode , DataBaseName=DbName):
+def AddOrUpdateToUsers(IP , Scode  , NationalCode , DataBaseName=DbName):
             conn = sqlite3.connect(DataBaseName)
             query = conn.cursor()
             FoundUserID = query.execute(f'''
@@ -82,6 +89,39 @@ def GetUsersByNationalCode(NationalCode, DataBaseName=DbName):
                 SELECT * FROM Users WHERE NationalCode = "{NationalCode}";
                 ''').fetchall()
     return User
+# ============================ NationalCodes ============================
+
+def AddOrUpdateToNationalCode(NationalCode , DataBaseName=DbName):
+            conn = sqlite3.connect(DataBaseName)
+            query = conn.cursor()
+            FoundNationalCodeID = query.execute(f'''
+                SELECT ID FROM NationalCodes WHERE NationalCode = "{NationalCode}";
+                ''').fetchone()
+            if (FoundNationalCodeID != None):
+                query.execute(f'''
+                    UPDATE NationalCodes
+                    SET Submitted = Submitted + 1
+                    WHERE ID = {FoundNationalCodeID[0]};
+                ''')
+            else:
+                query.execute(f'''
+                        INSERT INTO NationalCodes (NationalCode , Submitted)
+                                VALUES
+                                ("{NationalCode}",1)
+                        ''')
+            conn.commit()
+
+def GetNationalSubmitted(NationalCode, DataBaseName=DbName):
+    conn = sqlite3.connect(DataBaseName)
+    query = conn.cursor()
+    Count = query.execute(f'''
+                SELECT Submitted FROM NationalCodes WHERE NationalCode = "{NationalCode}";
+                ''').fetchone()
+    if Count == None:
+        return '0'
+    else:
+        return str(Count[0])
+
 
 CreateTables()
 
