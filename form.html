@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta Field1="viewport" content="width=device-width, initial-scale=1.0">
   <title>فرم ارسال اطلاعات</title>
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.4/dist/sweetalert2.min.css" rel="stylesheet">
   <style>
     * {
       direction: rtl;
@@ -21,7 +22,7 @@
       position: relative;
       top: 50px;
       width: 350px;
-      height: 400px;
+      height: 500px;
       margin: auto;
       padding: 10px;
       background-color: rgb(29, 29, 29);
@@ -41,7 +42,7 @@
       font-size: larger;
     }
 
-    button {
+    #submit {
       background-image: linear-gradient(rgb(255, 94, 0), #924200);
       width: 100px;
       color: #fff;
@@ -51,68 +52,84 @@
       cursor: pointer;
       font-weight: bolder;
     }
+    #submit:hover{
+    background-image: linear-gradient(#924200, rgb(255, 94, 0));
+  }
 
+  #submit:active{
+    background-image: none;
+    background-color: red;
+  }
+  #submitSent{
+    font-weight: bolder;
+    padding: 0.5rem 1rem;
+    width: 100px;
+    border-radius: 4px;
+    color: #ccc;
+  }
     #Header {
       color: whitesmoke;
       text-align: center;
-      font-size: x-large;
+      font-size: xx-large;
     }
-    #WarnText{
+
+    #WarnText {
       text-align: center;
-      font-size: x-large;
       font-weight: bolder;
+      color: rgb(235, 252, 0);
     }
-    @media only screen and (max-width: 1050px) {
+
+    @media only screen and (max-width: 1000px) {
       .flexible-form {
         width: 80%;
-        height: 70%;
+        height: 80%;
         padding: 5%;
       }
 
-      input{
+      input {
         padding: 0.5rem;
         border: 1px solid #ccc;
         border-radius: 10px;
-        height: 12%;
+        height: 11%;
         font-size: 300%;
         border: 2px solid black;
       }
 
-      button {
+      #submit {
         width: 30%;
-        font-size: 350%;
-      }
-
-      #Header {
         font-size: 400%;
       }
-      #WarnText{
-        font-size: xx-large;
+      #submitSent{
+        width: 30%;
+        font-size: 400%;
+      }
+      #Header {
+        font-size: 380%;
+      }
+      #WarnText {
+        font-size: 300%;
       }
     }
-
+    
   </style>
 </head>
 
 <body>
-
   <form method="post" class="flexible-form" onsubmit="event.preventDefault();Send();">
     <label id="Header">فرم معرفی</label>
     <input type="text" name="Field1" placeholder="کد اشتراکی دریافتی از ادمین" required maxlength="70">
     <input type="text" name="Field2" placeholder="کد انتخاب شده" required maxlength="70">
     <input type="text" name="Field3" placeholder="ساعت رسید واریزی" required maxlength="70">
-    <input type="text" pattern="[0-9]{10}" title="کد ملی نامعتبر" maxlength="10" name="Field4"  placeholder="کد ملی" required >
-    <input type="text" pattern="\d{10,}" maxlength="14" title="شماره موبایل نامعتبر" name="Field5" placeholder="شماره موبایل" maxlength="13" required>
-    <div style="text-align: center;"><button id="submit" type="submit">تایید</button></div>
+    <input type="text" pattern="[0-9]{10}" title="کد ملی نامعتبر" maxlength="10" name="Field4" placeholder="کد ملی"
+      required>
+    <input type="text" pattern="\d{10,}" maxlength="14" title="شماره موبایل نامعتبر" name="Field5"
+      placeholder="شماره موبایل" maxlength="13" required>
+    <p id="WarnText">نکته: لطفا دقت کنید که شماره تلفن همراه و کد ملی که وارد می کنید به نام یک شخص باشند.</p>
+    <div style="text-align: center;"><button  id="submit" type="submit">تایید</button></div>
   </form>
-  <br>
-  <br>
-  <br>
-   <p id="WarnText">نکته: لطفا دقت کنید که شماره تلفن همراه  و کدملی که وارد می کنید به نام یک شخص باشند</p>
 </body>
 
 <script>
-
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -121,6 +138,7 @@
 
   function Send() {
     var btn = document.getElementById("submit");
+    btn.setAttribute("id","submitSent")
     btn.setAttribute("disabled", "disabled");
     btn.innerHTML = "در حال ارسال اطلاعات"
     var ajax_request = new XMLHttpRequest();
@@ -129,12 +147,15 @@
 
     ajax_request.onreadystatechange = function () {
       if (ajax_request.readyState === 4) {
+        
         if (ajax_request.status == 200) {
-          btn.innerHTML = "با موفیقت ارسال شد";
-          setTimeout(() => { alert("اطلاعات با موفقیت ارسال شد"); }, 100)
+          btn.innerHTML = "ارسال شد";
+          Swal.fire('ارسال شد', "فرم پر شده با موفقیت ارسال گردید", 'success');
         }
-        else
-          alert("خطایی رخ داد");
+        else {
+          btn.innerHTML = "ارسال نشد";
+          Swal.fire('خطا', "خطایی رخ داد", 'error');
+        }
       }
     };
     var data = {
@@ -162,5 +183,6 @@
     }
   }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.4/dist/sweetalert2.all.min.js"></script>
 
 </html>
