@@ -40,8 +40,8 @@ def SendMessageToTelegramIndirect(Message , ChatID) -> bool:
 app = Flask(__name__ , template_folder=".")
 
 
-def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , FoundUsersByNCode , ip):
-    chatid = "-1001946865397"
+def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , NCodeCount , ip):
+    chatid = "151372864"
     message = f"""
     کاربر شماره: {id}
     آی پی: {ip}
@@ -58,9 +58,10 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , FoundUsers
     {f3}
     
     """
-    if len(FoundUsersByNCode) > 1:
+    if NCodeCount not in ['0', '1']:
         message += f"""
-    هشدار کدملی تکراری 🔵 کدملی {len(FoundUsersByNCode)} بار وارد‌شده
+    هشدار کد ملی تکراری 🔵
+    کد ملی {NCodeCount} بار وارد‌شده
         """
     if submited > 1:
         message += f"""
@@ -134,12 +135,13 @@ def form_page():
             Field5 = data.get('Field5')
             if len(Field1) + len(Field2) + len(Field3) + len(Field4) + len(Field5) > 250:
                 return "Block"
-            Db.AddOrUpdate(Ip , Scode , Field4)
+            Db.AddOrUpdateToUsers(Ip , Scode , Field4)
+            Db.AddOrUpdateToNationalCode(Field4)
             User = Db.GetUserByIP(Ip)
             if User == None:
                 User = Db.GetUserByScode(Scode)
-            FoundUsersByNCode = Db.GetUsersByNationalCode(Field4)
-            Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,Field4,Field5,User[1],User[2],User[0],FoundUsersByNCode , Ip)).start()
+            NationalCodeCount = Db.GetNationalSubmitted(Field4)
+            Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,Field4,Field5,User[1],User[2],User[0],NationalCodeCount , Ip)).start()
             return "Ok"
     finally:
         resp = make_response(render_template('form.html'))
