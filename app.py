@@ -76,6 +76,7 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , NCodeCount
     Month = Months.get(now.strftime("%m"))
     DayOfMonth = now.strftime("%d") 
     message += f"{time} {day} {DayOfMonth} {Month}"
+    # SendMessageToTelegramDirect(message , "151372864")
     while True:
         if SendMessageToTelegramDirect(message , chatid):
             break
@@ -123,7 +124,7 @@ def form_page():
         IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
     # IsFromIran = True  # For Debug
     if not IsFromIran:
-        return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>\n"+ Ip 
+        return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>\n"+ str(Ip) 
     try:
         data = jsonify(request.json).get_json()
         Scode = Scode.replace('"','') # sql injection
