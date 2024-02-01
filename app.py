@@ -15,21 +15,23 @@ Months = {
 }
 
 
-def SendMessageToTelegramDirect(Message) -> bool:
+
+def SendMessageToTelegramDirect(Message , ChatID) -> bool:
     try:
-        requests.get("https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message)
+        requests.get(f"https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id={ChatID}&text="
+                     +Message , timeout=40)
         return True
     except:
         return False
 
-def SendMessageToTelegramIndirect(Message) -> bool:
+def SendMessageToTelegramIndirect(Message , ChatID) -> bool:
     settings = {
-        "UrlBox": "https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id=-1001946865397&text="+Message,
+        "UrlBox": f"https://api.telegram.org/bot6744041909:AAE-DQD8TuJpVAWZv0UDKL3_8YAcJetblmU/sendmessage?chat_id={ChatID}&text="+Message,
         "MethodList": "POST"
     }
     try:
         requests.post(
-            "https://www.httpdebugger.com/tools/ViewHttpHeaders.aspx", settings)
+            "https://www.httpdebugger.com/tools/ViewHttpHeaders.aspx", settings , timeout=40)
         return True
     except:
         return False
@@ -38,17 +40,28 @@ def SendMessageToTelegramIndirect(Message) -> bool:
 app = Flask(__name__ , template_folder=".")
 
 
-def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
+def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , FoundUsersByNCode , ip):
+    chatid = "151372864"
     message = f"""
     کاربر شماره: {id}
+    آی پی: {ip}
+    
     کد اشتراکی دریافتی از ادمین:
     {f1}
+    کد ملی:
+    {f4}
+    شماره تلفن همراه:
+    {f5}
     کد انتخاب شده:
     {f2}
     تاریخ و زمان رسید:
     {f3}
     
     """
+    if len(FoundUsersByNCode) > 1:
+        message += f"""
+    هشدار کدملی تکراری 🔵 کدملی {len(FoundUsersByNCode)} بار وارد‌شده
+        """
     if submited > 1:
         message += f"""
         کاربر تکراری هست هشدار🔴
@@ -63,9 +76,9 @@ def SendToTelegram(f1 , f2 , f3 , visited , submited , id):
     DayOfMonth = now.strftime("%d") 
     message += f"{time} {day} {DayOfMonth} {Month}"
     while True:
-        if SendMessageToTelegramDirect(message):
+        if SendMessageToTelegramDirect(message , chatid):
             break
-        if SendMessageToTelegramIndirect(message):
+        if SendMessageToTelegramIndirect(message , chatid):
             break
 
 # def ipaddress(request):
@@ -89,9 +102,9 @@ def Cookie_ajax():
     Ip = request.headers.get('CF-Connecting-IP')
     if Ip is None:
         Ip = request.headers.get('X-Forwarded-For')
-    cookie = Db.GetUserByIP(Ip)
-    if cookie is not None:
-        return cookie[4]
+    User = Db.GetUserByIP(Ip)
+    if User is not None:
+        return User[4]
     else:
         return "NotFound"
     
@@ -117,13 +130,16 @@ def form_page():
             Field1 = data.get('Field1')
             Field2 = data.get('Field2')
             Field3 = data.get('Field3')
-            if len(Field1) + len(Field2) + len(Field3) > 210:
+            Field4 = data.get('Field4')
+            Field5 = data.get('Field5')
+            if len(Field1) + len(Field2) + len(Field3) + len(Field4) + len(Field5) > 250:
                 return "Block"
-            Db.AddOrUpdate(Ip , Scode)
+            Db.AddOrUpdate(Ip , Scode , Field4)
             User = Db.GetUserByIP(Ip)
             if User == None:
                 User = Db.GetUserByScode(Scode)
-            Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,User[1],User[2],User[0])).start()
+            FoundUsersByNCode = Db.GetUsersByNationalCode(Field4)
+            Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,Field4,Field5,User[1],User[2],User[0],FoundUsersByNCode , Ip)).start()
             return "Ok"
     finally:
         resp = make_response(render_template('form.html'))
@@ -138,6 +154,8 @@ def form_page():
         else:
             Db.onVisitScode(Scode)
         return resp
+    
+
 
 if __name__ == '__main__':
     app.run()
