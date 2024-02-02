@@ -14,7 +14,13 @@ Months = {
     "1":"فروردین","2":"اردیبهشت","3":"خرداد","4":"تیر","5":"مرداد","6":"شهریور","7":"مهر","8":"آبان","9":"آذر","10":"دی","11":"بهمن","12":"اسفند"
 }
 
+app = Flask(__name__ , template_folder=".")
 
+def LogError(FuncionName, Error):
+    print(f"Error in {FuncionName}:" + str(Error))
+    with open("ErrorFile.txt", 'a') as ErrorFile:
+        ErrorFile.write(f"Error in {FuncionName}: " + str(Error))
+        ErrorFile.write("\n==================================\n")
 
 def SendMessageToTelegramDirect(Message , ChatID) -> bool:
     try:
@@ -37,51 +43,58 @@ def SendMessageToTelegramIndirect(Message , ChatID) -> bool:
         return False
 
 
-app = Flask(__name__ , template_folder=".")
 
 
-def SendToTelegram(f1 , f2 , f3 , f4 , f5 , visited , submited , id , NCodeCount , ip):
-    chatid = "-1001946865397"
-    message = f"""
-    کاربر شماره: {id}
-    آی پی: {ip}
-    
-    کد اشتراکی دریافتی از ادمین:
-    {f1}
-    کد ملی:
-    {f4}
-    شماره تلفن همراه:
-    {f5}
-    کد انتخاب شده:
-    {f2}
-    تاریخ و زمان رسید:
-    {f3}
-    
-    """
-    if NCodeCount not in ['0', '1']:
-        message += f"""
-    هشدار کد ملی تکراری 🔵
-    کد ملی {NCodeCount} بار وارد‌شده
-        """
-    if submited > 1:
-        message += f"""
-        کاربر تکراری هست هشدار🔴
-        {visited} بار وارد سایت شده 
-        {submited} بار فیلد هارو پر کرده 
+def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
+    try:
+        chatid = "-1001946865397"
+        User = Db.GetUserByIP(ip)
+        if User == None:
+            User = Db.GetUserByScode(Scode)
+        NCodeCount = Db.GetNationalSubmitted(f4)
+        message = f"""
+        کاربر شماره: {User.get("ID")}
+        آی پی: {ip}
+        
+        کد اشتراکی دریافتی از ادمین:
+        {f1}
+        کد ملی:
+        {f4}
+        شماره تلفن همراه:
+        {f5}
+        کد انتخاب شده:
+        {f2}
+        تاریخ و زمان رسید:
+        {f3}
         
         """
-    now = jdatetime.datetime.now(timezone('Asia/Tehran'))
-    day = DaysOfWeek.get(now.strftime("%A")) 
-    time = now.strftime("%H:%M")  
-    Month = Months.get(now.strftime("%m"))
-    DayOfMonth = now.strftime("%d") 
-    message += f"{time} {day} {DayOfMonth} {Month}"
-    # SendMessageToTelegramDirect(message , "151372864")
-    while True:
-        if SendMessageToTelegramDirect(message , chatid):
-            break
-        if SendMessageToTelegramIndirect(message , chatid):
-            break
+        if NCodeCount not in ['0', '1']:
+            message += f"""
+        هشدار کد ملی تکراری 🔵
+        کد ملی {NCodeCount} بار وارد‌شده
+            """
+        if User.get("submited") > 1:
+            message += f"""
+            کاربر تکراری هست هشدار🔴
+            {User.get("visited")} بار وارد سایت شده 
+            {User.get("submited")} بار فیلد هارو پر کرده 
+            
+            """
+        now = jdatetime.datetime.now(timezone('Asia/Tehran'))
+        day = DaysOfWeek.get(now.strftime("%A")) 
+        time = now.strftime("%H:%M")  
+        Month = Months.get(now.strftime("%m"))
+        DayOfMonth = now.strftime("%d") 
+        message += f"{time} {day} {DayOfMonth} {Month}"
+        # SendMessageToTelegramDirect(message , "151372864")
+        while True:
+            if SendMessageToTelegramDirect(message , chatid):
+                break
+            if SendMessageToTelegramIndirect(message , chatid):
+                break
+    except Exception as Error:
+        LogError("SendToTelegram", Error)
+
 
 # def ipaddress(request):
 #     try:
@@ -106,57 +119,70 @@ def Cookie_ajax():
         Ip = request.headers.get('X-Forwarded-For')
     User = Db.GetUserByIP(Ip)
     if User is not None:
-        return User[4]
+        return User.get("Scode")
     else:
         return "NotFound"
-    
+
+def IsFieldsValid(CodeFromAdmin,SelectedCode,TimeOfDeposit,Ncode,Phone):
+    if len(CodeFromAdmin) > 70:
+        return False
+    if len(SelectedCode) > 70:
+        return False
+    if len(TimeOfDeposit) > 70:
+        return False
+    if len(Ncode) != 10 or not Ncode.isdigit():
+        return False
+    if len(Phone) > 14 or not Ncode.isdigit():
+        return False
+    return True
+
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
-    Scode = request.cookies.get('SecretCode')
-    # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
-    Ip = request.headers.get('CF-Connecting-IP')
-    if Ip is None:
-        Ip = request.headers.get('X-Forwarded-For')
-    CountryByCloudFlare = request.headers.get('Cf-Ipcountry')
-    if CountryByCloudFlare is not None:
-        IsFromIran = CountryByCloudFlare == "IR"
-    else:
-        IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
-    # IsFromIran = True  # For Debug
-    if not IsFromIran:
-        return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>\n"+ str(Ip) 
     try:
-        data = jsonify(request.json).get_json()
-        Scode = Scode.replace('"','') # sql injection
+        Scode = request.cookies.get('SecretCode')
+        # Ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr) 
+        Ip = request.headers.get('CF-Connecting-IP')
+        if Ip is None:
+            Ip = request.headers.get('X-Forwarded-For')
+        CountryByCloudFlare = request.headers.get('Cf-Ipcountry')
+        if CountryByCloudFlare is not None:
+            IsFromIran = CountryByCloudFlare == "IR"
+        else:
+            IsFromIran = requests.get(f"https://geolocation-db.com/json/{Ip}&position=true").json().get("country_name") == "Iran"
+        # IsFromIran = True  # For Debug
+        if not IsFromIran:
+            return "<h1>برای استفاده از سرویس فیلترشکن خود را خاموش کنید</h1>\n"+ str(Ip) 
+
         if request.method == 'POST' and len(Scode) == 32:
+            data = jsonify(request.json).get_json()
             Field1 = data.get('Field1')
             Field2 = data.get('Field2')
             Field3 = data.get('Field3')
             Field4 = data.get('Field4')
             Field5 = data.get('Field5')
-            if len(Field1) + len(Field2) + len(Field3) + len(Field4) + len(Field5) > 250:
-                return "Block"
+            if not IsFieldsValid(Field1,Field2,Field3,Field4,Field5):
+                return "اطلاعات وارد شده نامعتبر" , 400
             Db.AddOrUpdateToUsers(Ip , Scode , Field4)
             Db.AddOrUpdateToNationalCode(Field4)
-            User = Db.GetUserByIP(Ip)
-            if User == None:
-                User = Db.GetUserByScode(Scode)
-            NationalCodeCount = Db.GetNationalSubmitted(Field4)
-            Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,Field4,Field5,User[1],User[2],User[0],NationalCodeCount , Ip)).start()
+            Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,Field4,Field5,Scode, Ip)).start()
             return "Ok"
-    finally:
+
         resp = make_response(render_template('form.html'))
         user = Db.GetUserByIP(IP=Ip)
         expire_date = datetime.datetime.now()
         expire_date = expire_date + datetime.timedelta(days=400)
         if user is not None:
             Db.onVisitIp(Ip)
-            resp.set_cookie("SecretCode",user[4],expires=expire_date)
+            resp.set_cookie("SecretCode",user.get("Scode"),expires=expire_date)
         elif Db.GetUserByScode(Scode) is None:
-            resp.set_cookie("SecretCode",GenerateSCode(),expires=expire_date)
+                resp.set_cookie("SecretCode",GenerateSCode(),expires=expire_date)
         else:
             Db.onVisitScode(Scode)
         return resp
+    except Exception as Error:
+        LogError("form_page", Error)
+        return "<h1>خطایی رخ داد</h1>" , 500
+
     
 
 
