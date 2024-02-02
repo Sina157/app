@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta Field1="viewport" content="width=device-width, initial-scale=1.0">
-  <title>فرم ارسال اطلاعات</title>
+  <title>فرم معرفی</title>
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.4/dist/sweetalert2.min.css" rel="stylesheet">
   <style>
     * {
@@ -52,21 +52,24 @@
       cursor: pointer;
       font-weight: bolder;
     }
-    #submit:hover{
-    background-image: linear-gradient(#924200, rgb(255, 94, 0));
-  }
 
-  #submit:active{
-    background-image: none;
-    background-color: red;
-  }
-  #submitSent{
-    font-weight: bolder;
-    padding: 0.5rem 1rem;
-    width: 100px;
-    border-radius: 4px;
-    color: #ccc;
-  }
+    #submit:hover {
+      background-image: linear-gradient(#924200, rgb(255, 94, 0));
+    }
+
+    #submit:active {
+      background-image: none;
+      background-color: red;
+    }
+
+    #submitSent {
+      font-weight: bolder;
+      padding: 0.5rem 1rem;
+      width: 100px;
+      border-radius: 4px;
+      color: #ccc;
+    }
+
     #Header {
       color: whitesmoke;
       text-align: center;
@@ -99,18 +102,20 @@
         width: 30%;
         font-size: 400%;
       }
-      #submitSent{
+
+      #submitSent {
         width: 30%;
         font-size: 400%;
       }
+
       #Header {
         font-size: 380%;
       }
+
       #WarnText {
         font-size: 300%;
       }
     }
-    
   </style>
 </head>
 
@@ -120,12 +125,11 @@
     <input type="text" name="Field1" placeholder="کد اشتراکی دریافتی از ادمین" required maxlength="70">
     <input type="text" name="Field2" placeholder="کد انتخاب شده" required maxlength="70">
     <input type="text" name="Field3" placeholder="ساعت رسید واریزی" required maxlength="70">
-    <input type="text" pattern="[0-9]{10}" title="کد ملی نامعتبر" maxlength="10" name="Field4" placeholder="کد ملی"
-      required>
-    <input type="text" pattern="\d{10,}" maxlength="14" title="شماره موبایل نامعتبر" name="Field5"
-      placeholder="شماره موبایل" maxlength="13" required>
+    <input type="text" pattern="[0-9]{10}" title="کد ملی نامعتبر" maxlength="10" name="Field4" placeholder="کد ملی">
+    <input type="text" pattern="[0-9]{10,}" maxlength="14" title="شماره تلفن همراه نامعتبر" name="Field5"
+      placeholder="شماره تلفن همراه">
     <p id="WarnText">نکته: لطفا دقت کنید که شماره تلفن همراه و کد ملی که وارد می کنید به نام یک شخص باشند.</p>
-    <div style="text-align: center;"><button  id="submit" type="submit">تایید</button></div>
+    <div style="text-align: center;"><button id="submit" type="submit">تایید</button></div>
   </form>
 </body>
 
@@ -138,7 +142,7 @@
 
   function Send() {
     var btn = document.getElementById("submit");
-    btn.setAttribute("id","submitSent")
+    btn.setAttribute("id", "submitSent")
     btn.setAttribute("disabled", "disabled");
     btn.innerHTML = "در حال ارسال اطلاعات"
     var ajax_request = new XMLHttpRequest();
@@ -147,7 +151,7 @@
 
     ajax_request.onreadystatechange = function () {
       if (ajax_request.readyState === 4) {
-        
+
         if (ajax_request.status == 200) {
           btn.innerHTML = "ارسال شد";
           Swal.fire('ارسال شد', "فرم پر شده با موفقیت ارسال گردید", 'success');
