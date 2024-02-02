@@ -25,6 +25,7 @@ def CreateTables(DataBaseName=DbName):
     
     
 def AddOrUpdateToUsers(IP , Scode  , NationalCode , DataBaseName=DbName):
+            Scode = Scode.replace('"','') # sql injection
             conn = sqlite3.connect(DataBaseName)
             query = conn.cursor()
             FoundUserID = query.execute(f'''
@@ -41,7 +42,7 @@ def AddOrUpdateToUsers(IP , Scode  , NationalCode , DataBaseName=DbName):
                 query.execute(f'''
                         INSERT INTO Users (IP , Scode , visited , submited ,NationalCode)
                                 VALUES
-                                ("{IP}", "{Scode}" ,0, 1 , "{NationalCode}")
+                                ("{IP}", "{Scode}" ,1, 1 , "{NationalCode}")
                         ''')
             conn.commit()
 
@@ -66,20 +67,26 @@ def onVisitScode(Scode, DataBaseName=DbName):
                 ''')
     conn.commit()
 
-def GetUserByIP(IP, DataBaseName=DbName):
+def GetUserByIP(IP, DataBaseName=DbName) -> dict:
     conn = sqlite3.connect(DataBaseName)
     query = conn.cursor()
     User = query.execute(f'''
                 SELECT * FROM Users WHERE IP = "{IP}";
                 ''').fetchone()
+    if User is None:
+        return None
+    User = dict(zip([column[0] for column in query.description], User))
     return User
 
-def GetUserByScode(Scode, DataBaseName=DbName):
+def GetUserByScode(Scode, DataBaseName=DbName) -> dict:
     conn = sqlite3.connect(DataBaseName)
     query = conn.cursor()
     User = query.execute(f'''
                 SELECT * FROM Users WHERE Scode = "{Scode}";
                 ''').fetchone()
+    if User is None:
+        return None
+    User = dict(zip([column[0] for column in query.description], User))
     return User
 
 def GetUsersByNationalCode(NationalCode, DataBaseName=DbName):
@@ -87,7 +94,10 @@ def GetUsersByNationalCode(NationalCode, DataBaseName=DbName):
     query = conn.cursor()
     User = query.execute(f'''
                 SELECT * FROM Users WHERE NationalCode = "{NationalCode}";
-                ''').fetchall()
+                ''').fetchone()
+    if User is None:
+        return None
+    User = dict(zip([column[0] for column in query.description], User))
     return User
 # ============================ NationalCodes ============================
 
