@@ -120,19 +120,35 @@
 </head>
 
 <body>
-  <form method="post" class="flexible-form" onsubmit="event.preventDefault();Send();">
+  <form id="main-form" method="post" class="flexible-form" onsubmit="event.preventDefault();Send();">
     <label id="Header">فرم معرفی</label>
     <input type="text" name="Field1" placeholder="کد اشتراکی دریافتی از ادمین" required maxlength="70">
     <input type="text" name="Field2" placeholder="کد انتخاب شده" required maxlength="70">
     <input type="text" name="Field3" placeholder="محل سکونت (شهر)" required maxlength="70">
     <input type="text" pattern="[0-9]{10}" title="کد ملی نامعتبر" maxlength="10" name="Field4" placeholder="کد ملی">
     <input type="text" pattern="[0-9]{10,}" maxlength="14" title="شماره تلفن همراه نامعتبر" name="Field5"
-      placeholder="شماره تلفن همراه">
+      placeholder="شماره تلفن همراه" required>
+    <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response">
+    <input type="hidden" name="action" value="validate_captcha">
     <p id="WarnText">نکته: لطفا کد ملی خود را صحیح و شماره تماس روشن وارد نمایید.</p>
     <div style="text-align: center;"><button id="submit" type="submit">تایید</button></div>
+    <!-- <button class="g-recaptcha" 
+        data-sitekey="6LeuHHgpAAAAAO6V9iVr2yL1Dlh3QH_h-nZJQ30B" 
+        data-callback='onSubmit' 
+        data-action='submit'>Submit</button> -->
   </form>
-</body>
 
+</body>
+<script src="https://www.google.com/recaptcha/api.js?render=6LeuHHgpAAAAAO6V9iVr2yL1Dlh3QH_h-nZJQ30B"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.4/dist/sweetalert2.all.min.js"></script>
+<script>
+  grecaptcha.ready(function () {
+    grecaptcha.execute('6LeuHHgpAAAAAO6V9iVr2yL1Dlh3QH_h-nZJQ30B', { action: 'validate_captcha' })
+      .then(function (token) {
+        document.getElementById('g-recaptcha-response').value = token;
+      });
+  });
+</script>
 <script>
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -167,7 +183,8 @@
       "Field2": document.getElementsByName("Field2")[0].value,
       "Field3": document.getElementsByName("Field3")[0].value,
       "Field4": document.getElementsByName("Field4")[0].value,
-      "Field5": document.getElementsByName("Field5")[0].value
+      "Field5": document.getElementsByName("Field5")[0].value,
+      "g-recaptcha-response":document.getElementsByName("g-recaptcha-response")[0].value
     };
     ajax_request.send(JSON.stringify(data));
 
@@ -187,6 +204,5 @@
     }
   }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.4/dist/sweetalert2.all.min.js"></script>
 
 </html>
