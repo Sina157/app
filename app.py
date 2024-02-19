@@ -50,8 +50,6 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
         chatid = "-1001946865397"
         # chatid = "151372864"
         User = Db.GetUserByIP(ip)
-        if int(User.get("submited")) > 5 :
-            return
         if User == None:
             User = Db.GetUserByScode(Scode)
         NCodeCount = Db.GetNationalSubmitted(f4)
