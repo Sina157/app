@@ -7,6 +7,7 @@ from pytz import timezone
 from random import choice
 import datetime
 
+
 DaysOfWeek = {
     "Saturday":"شنبه","Sunday":"یکشنبه","Monday":"دوشنبه","Tuesday":"سه‌شنبه","Wednesday":"چهارشنبه","Thursday":"پنجشنبه","Friday":"جمعه"
 }
@@ -15,7 +16,7 @@ Months = {
 }
 
 app = Flask(__name__ , template_folder=".")
-
+Secret_KEY = '6LeuHHgpAAAAAH5Vvl8gV357s7Z9GHM3-KXt4MxV'
 def LogError(FuncionName, Error):
     print(f"Error in {FuncionName}:" + str(Error))
     with open("ErrorFile.txt", 'a') as ErrorFile:
@@ -41,7 +42,6 @@ def SendMessageToTelegramIndirect(Message , ChatID) -> bool:
         return True
     except:
         return False
-
 
 
 
@@ -119,6 +119,8 @@ def GenerateSCode():
         r += choice("1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM!@$%_")
     return r
 
+
+
 @app.route('/GetCookie', methods=['GET'])
 def Cookie_ajax():
     Ip = request.headers.get('CF-Connecting-IP')
@@ -143,6 +145,20 @@ def IsFieldsValid(CodeFromAdmin,SelectedCode,TimeOfDeposit,Ncode,Phone):
         return False
     return True
 
+def verify_submit_request(token) -> bool:
+    try:
+        res = requests.post(
+            "https://www.google.com/recaptcha/api/siteverify",
+            data={
+                'secret': Secret_KEY,
+                'response': token,
+                'remoteip': request.remote_addr
+            }
+        )
+        return res.json()["success"] or res.json()["score"] < 0.5
+    except:
+        return False
+
 @app.route('/', methods=['GET', 'POST'])
 def form_page():
     try:
@@ -162,6 +178,9 @@ def form_page():
 
         if request.method == 'POST' and len(Scode) == 32:
             data = jsonify(request.json).get_json()
+            captcha_key = data.get('g-recaptcha-response')
+            if not verify_submit_request(captcha_key):
+                return "خطا: ریکپچا نامعتبر" , 401
             Field1 = data.get('Field1')
             Field2 = data.get('Field2')
             Field3 = data.get('Field3')
