@@ -53,8 +53,6 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
         if User == None:
             User = Db.GetUserByScode(Scode)
         NCodeCount = Db.GetNationalSubmitted(f4)
-        PCount = Db.GetPhonesSubmitted(f5)
-        print(PCount)
         try:
             city = requests.get("http://ip-api.com/json/"+ip).json().get("city")
         except:
@@ -81,11 +79,6 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
         هشدار کد ملی تکراری 🔵
         کد ملی {NCodeCount} بار وارد‌شده
             """
-        if PCount not in ['0', '1']:
-            message += f"""
-        هشدار شماره تلفن تکراری 🟡
-        شماره تلفن {PCount} بار وارد‌شده
-            """
         if User.get("submited") > 1:
             message += f"""
             کاربر تکراری هست هشدار🔴
@@ -99,6 +92,7 @@ def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
         Month = Months.get(now.strftime("%m"))
         DayOfMonth = now.strftime("%d") 
         message += f"{time} {day} {DayOfMonth} {Month}"
+        SendMessageToTelegramDirect(message , 151372864)
         while True:
             if SendMessageToTelegramDirect(message , chatid):
                 break
@@ -195,7 +189,6 @@ def form_page():
                 return "اطلاعات وارد شده نامعتبر" , 400
             Db.AddOrUpdateToUsers(Ip , Scode , Field4)
             Db.AddOrUpdateToNationalCode(Field4)
-            Db.AddOrUpdateToPhones(Field5)
             Thread(target= lambda:SendToTelegram(Field1,Field2,Field3,Field4,Field5,Scode, Ip)).start()
             return "Ok"
 
