@@ -22,6 +22,13 @@ def CreateTables(DataBaseName=DbName):
         [Submitted] INTEGER
         )
                   ''')
+        query.execute('''
+        CREATE TABLE IF NOT EXISTS Phones
+        ([ID]  INTEGER PRIMARY KEY,
+        [Phone] TEXT,
+        [Submitted] INTEGER
+        )
+                  ''')
     
     
 def AddOrUpdateToUsers(IP , Scode  , NationalCode , DataBaseName=DbName):
@@ -132,6 +139,38 @@ def GetNationalSubmitted(NationalCode, DataBaseName=DbName):
     else:
         return str(Count[0])
 
+# ============================ Phones ============================
+
+def AddOrUpdateToPhones(Phone , DataBaseName=DbName):
+            conn = sqlite3.connect(DataBaseName)
+            query = conn.cursor()
+            FoundPhonesID = query.execute(f'''
+                SELECT ID FROM Phones WHERE Phone = "{Phone}";
+                ''').fetchone()
+            if (FoundPhonesID != None):
+                query.execute(f'''
+                    UPDATE Phones
+                    SET Submitted = Submitted + 1
+                    WHERE ID = {FoundPhonesID[0]};
+                ''')
+            else:
+                query.execute(f'''
+                        INSERT INTO Phones (Phone , Submitted)
+                                VALUES
+                                ("{Phone}",1)
+                        ''')
+            conn.commit()
+
+def GetPhonesSubmitted(Phone, DataBaseName=DbName):
+    conn = sqlite3.connect(DataBaseName)
+    query = conn.cursor()
+    Count = query.execute(f'''
+                SELECT Submitted FROM Phones WHERE Phone = "{Phone}";
+                ''').fetchone()
+    if Count == None:
+        return '0'
+    else:
+        return str(Count[0])
 
 CreateTables()
 
