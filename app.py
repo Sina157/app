@@ -211,4 +211,5 @@ def form_page():
 
 
 if __name__ == '__main__':
+    Thread(target= lambda:Db.clear_database()).start()
     app.run()

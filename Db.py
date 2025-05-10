@@ -1,4 +1,5 @@
 import sqlite3
+import time
 
 DbName = "DbApp.sqlite3"
 
@@ -132,6 +133,29 @@ def GetNationalSubmitted(NationalCode, DataBaseName=DbName):
     else:
         return str(Count[0])
 
+def clear_database():
+    while True:
+        try:
+            conn = sqlite3.connect('DbApp.sqlite3')
+            cursor = conn.cursor()
+            
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cursor.fetchall()
+            
+            for table in tables:
+                table_name = table[0]
+                if table_name != 'sqlite_sequence': 
+                    cursor.execute(f"DELETE FROM {table_name};")
+            
+            conn.commit()
+            conn.close()
+            
+            
+            time.sleep(3600)
+            
+        except Exception as e:
+            print(f"خطا در پاکسازی پایگاه داده: {e}")
+            time.sleep(60)  
 
 CreateTables()
 
